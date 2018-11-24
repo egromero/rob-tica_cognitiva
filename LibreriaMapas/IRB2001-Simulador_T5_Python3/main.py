@@ -1,5 +1,6 @@
 import irbt5
 import pygame
+import random 
 
 
 
@@ -8,9 +9,6 @@ class Robot:
 		self.px = None
 		self.py = None
 		self.dir = None
-
-mp = irbt5.map(30, 48, 'irb2001t5-map01.csv')
-
 
 
 def StateSetAll(mp):
@@ -37,7 +35,7 @@ def DistanceToWall(x,y):
 			direcciones['W'] = dif if mp.gettile(x+dif, y).visual=='tilewall' else None
 			dif+=1
 	except IndexError:
-		print('Muralla de borde Oeste')
+		#print('Muralla de borde Oeste')
 		direcciones['W'] = dif
 	dif = 0
 	try:
@@ -47,7 +45,7 @@ def DistanceToWall(x,y):
 			if x-dif < 1:
 				raise Exception("negativo")
 	except (IndexError, Exception):
-		print('Muralla de borde Este')
+		#print('Muralla de borde Este')
 		direcciones['E'] = dif
 	dif = 0
 	try:
@@ -55,7 +53,7 @@ def DistanceToWall(x,y):
 			direcciones['S'] = dif if mp.gettile(x, y+dif).visual=='tilewall' else None
 			dif+=1
 	except IndexError:
-		print('Muralla de borde Sur')
+		#print('Muralla de borde Sur')
 		direcciones['S'] = dif
 	dif = 0
 	try:
@@ -65,14 +63,35 @@ def DistanceToWall(x,y):
 			if y-dif < 1:
 				raise Exception("negativo")
 	except (IndexError, Exception):
-		print('Muralla de borde Norte')
+		#print('Muralla de borde Norte')
 		direcciones['N'] = dif
 
 	
 	return direcciones
 
-def StateSetSee(posible):
-	pass
+def StateSetSee(mp, posible):
+	#comparar distancias con la del punto del robot.
+	x,y = mp.getposition()
+	distances = DistanceToWall(x,y)
+	newposible = list(filter(lambda x : DistanceToWall(x[0], x[1]) == distances, posible)) 
+	return newposible
+	
+
+mp = irbt5.map(30, 48, 'irb2001t5-map04.csv')
+print(mp.getposition())
+#x = random.randint(1,48)
+#y = random.randint(1,30)
+#mp.teleport(x,y)
+posible = StateSetAll(mp)
+print(StateSetSee(mp, posible))
 
 
 
+'''
+## Pygame ventana
+
+
+while pygame.event.wait().type != pygame.locals.QUIT:
+    pass
+
+'''
