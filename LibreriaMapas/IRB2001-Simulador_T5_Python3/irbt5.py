@@ -1,5 +1,5 @@
-#import pygame
-#import pygame.locals
+import pygame
+import pygame.locals
 import csv
 
 #  clase de cada cuadro, me dio lata hacer una estructura
@@ -31,7 +31,7 @@ class map:
         self.width = widthoftiles
         self.height = heightoftiles
         self.qmovements = 0
-        #self.clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock()
         self.lastime = 0
         self.smalldraw = False
         self.drawpixels = 25
@@ -59,11 +59,11 @@ class map:
                     self.finishy = y
         #  inicio de interfaz grafica
         print('Iniciando modulo grafico pygame')
-        #pygame.init()
+        pygame.init()
         print('Generando ventana grafica')
-        #self.screen = pygame.display.set_mode([self.drawpixels * self.height, self.drawpixels * self.width])
-        #self.screen.fill((25, 25, 25))
-        #self.redrawmap()
+        self.screen = pygame.display.set_mode([self.drawpixels * self.height, self.drawpixels * self.width])
+        self.screen.fill((25, 25, 25))
+        self.redrawmap()
         print('Mapa generado')
 
     #  dibujar en la ventana el mapa

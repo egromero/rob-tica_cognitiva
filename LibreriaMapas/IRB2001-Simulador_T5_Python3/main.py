@@ -1,14 +1,7 @@
 import irbt5
 import pygame
 import random 
-
-
-
-class Robot:
-	def __init__(self):
-		self.px = None
-		self.py = None
-		self.dir = None
+import operator
 
 
 def StateSetAll(mp):
@@ -24,47 +17,48 @@ def StateSetAll(mp):
 						posibles.append((valorColumna, elemento[0])) # Para información del objeto agregar elemento[1].
 	return posibles
 
-def DistanceToWall(x,y):
-	direcciones = {'W' : None, 
-				   'E' : None, 
-				   'S' : None,
-				   'N' : None}
+def DistanceToWall(x,y, mp):
+
+	direcciones = {'west' : None, 
+				   'east' : None, 
+				   'south' : None,
+				   'north' : None}
 	dif = 0
 	try:
-		while not direcciones['W']:
-			direcciones['W'] = dif if mp.gettile(x+dif, y).visual=='tilewall' else None
+		while not direcciones['east']:
+			direcciones['east'] = dif if mp.gettile(x+dif, y).visual=='tilewall' else None
 			dif+=1
 	except IndexError:
 		#print('Muralla de borde Oeste')
-		direcciones['W'] = dif
+		direcciones['east'] = dif
 	dif = 0
 	try:
-		while not direcciones['E']:
-			direcciones['E'] = dif if mp.gettile(x-dif, y).visual=='tilewall' else None
+		while not direcciones['west']:
+			direcciones['west'] = dif if mp.gettile(x-dif, y).visual=='tilewall' else None
 			dif+=1
 			if x-dif < 1:
 				raise Exception("negativo")
 	except (IndexError, Exception):
 		#print('Muralla de borde Este')
-		direcciones['E'] = dif
+		direcciones['west'] = dif
 	dif = 0
 	try:
-		while not direcciones['S']:
-			direcciones['S'] = dif if mp.gettile(x, y+dif).visual=='tilewall' else None
+		while not direcciones['south']:
+			direcciones['south'] = dif if mp.gettile(x, y+dif).visual=='tilewall' else None
 			dif+=1
 	except IndexError:
 		#print('Muralla de borde Sur')
-		direcciones['S'] = dif
+		direcciones['south'] = dif
 	dif = 0
 	try:
-		while not direcciones['N']:	
-			direcciones['N'] = dif if mp.gettile(x, y-dif).visual=='tilewall' else None
+		while not direcciones['north']:	
+			direcciones['north'] = dif if mp.gettile(x, y-dif).visual=='tilewall' else None
 			dif+=1
 			if y-dif < 1:
 				raise Exception("negativo")
 	except (IndexError, Exception):
 		#print('Muralla de borde Norte')
-		direcciones['N'] = dif
+		direcciones['north'] = dif
 
 	
 	return direcciones
@@ -72,26 +66,35 @@ def DistanceToWall(x,y):
 def StateSetSee(mp, posible):
 	#comparar distancias con la del punto del robot.
 	x,y = mp.getposition()
-	distances = DistanceToWall(x,y)
-	newposible = list(filter(lambda x : DistanceToWall(x[0], x[1]) == distances, posible)) 
+	distRobot = DistanceToWall(x, y, mp)
+	newposible = list(filter(lambda x : DistanceToWall(x[0], x[1], mp) == distRobot, posible)) 
 	return newposible
 	
 
-mp = irbt5.map(30, 48, 'irb2001t5-map04.csv')
-print(mp.getposition())
-#x = random.randint(1,48)
-#y = random.randint(1,30)
-#mp.teleport(x,y)
-posible = StateSetAll(mp)
-print(StateSetSee(mp, posible))
+def LoadMap(numeromapa):
+	maps = { 1 : (30, 48, 'irb2001t5-map01.csv'),
+			 2 : (47, 57, 'irb2001t5-map02.csv'),
+			 3 : (54, 61, 'irb2001t5-map03.csv'),
+			 4 : (54, 61, 'irb2001t5-map04.csv') }
+	x,y,mapa = maps[numeromapa]
+	return irbt5.map(x, y, mapa)
 
+mp =  LoadMap(3)
+mp.setfulldraw(False)
+mp.drawsmall(True)
+posible = StateSetAll(mp)
+newposibles = StateSetSee(mp, posible)
+print(newposibles)
+
+
+
+#### Heurística:
 
 
 '''
 ## Pygame ventana
-
-
+'''
 while pygame.event.wait().type != pygame.locals.QUIT:
     pass
 
-'''
+
