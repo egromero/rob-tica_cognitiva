@@ -17,7 +17,7 @@ def StateSetAll(mp):
 						posibles.append((valorColumna, elemento[0])) # Para información del objeto agregar elemento[1].
 	return posibles
 
-def DistanceToWall(x,y, mp):
+def WhatDoISee(x,y, mp, direccion=None):
 
 	direcciones = {'west' : None, 
 				   'east' : None, 
@@ -60,14 +60,15 @@ def DistanceToWall(x,y, mp):
 		#print('Muralla de borde Norte')
 		direcciones['north'] = dif
 
-	
+	if direccion:
+		return direcciones[direccion]
 	return direcciones
 
 def StateSetSee(mp, posible):
 	#comparar distancias con la del punto del robot.
 	x,y = mp.getposition()
-	distRobot = DistanceToWall(x, y, mp)
-	newposible = list(filter(lambda x : DistanceToWall(x[0], x[1], mp) == distRobot, posible)) 
+	distRobot = WhatDoISee(x, y, mp)
+	newposible = list(filter(lambda x : WhatDoISee(x[0], x[1], mp) == distRobot, posible)) 
 	return newposible
 	
 
@@ -79,16 +80,42 @@ def LoadMap(numeromapa):
 	x,y,mapa = maps[numeromapa]
 	return irbt5.map(x, y, mapa)
 
-mp =  LoadMap(3)
+
+encontrado = False
+mp =  LoadMap(1)
 mp.setfulldraw(False)
 mp.drawsmall(True)
 posible = StateSetAll(mp)
 newposibles = StateSetSee(mp, posible)
-print(newposibles)
+
+if len(newposibles)<1:
+	encontrado = True
 
 
+n=0
+while not encontrado:
+	dist = WhatDoISee(newposibles[0][0], newposibles[0][1], mp)
+	directions = list(dist.keys())
+	try:
+		for i in range(1, dist[directions[n]]):
+			mp.moverobot(directions[n])
+			posible = StateSetAll(mp)
+			newposibles = StateSetSee(mp, posible)
+			if len(newposibles)<2:
+				encontrado = True
+				msg ='Robot encontrado en la posicion: '
+				break
+	except IndexError:
+		msg = 'Existen dos espacios iguales en el mapa, el robot tiene dos posiciones equiprobables: '
+		break
+	n+=1
 
-#### Heurística:
+
+print(msg, newposibles)
+
+
+#### Heurística: Ir a las murallas
+
 
 
 '''
@@ -96,5 +123,4 @@ print(newposibles)
 '''
 while pygame.event.wait().type != pygame.locals.QUIT:
     pass
-
 
